@@ -18,6 +18,7 @@ public class App {
     private Configuration configuration;
     private Stage primaryStage;
     private World world;
+    private GameTurn gameTurn;
 
     private boolean isRunning;
 
@@ -42,15 +43,12 @@ public class App {
     public void start() {
         isRunning = true;
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleAtFixedRate(new GameTurn(world), DEFAULT_DELAY, configuration.getTurnInterval(), TimeUnit.MILLISECONDS);
+        gameTurn = new GameTurn(world);
+        scheduler.scheduleAtFixedRate(gameTurn, DEFAULT_DELAY, configuration.getTurnInterval(), TimeUnit.MILLISECONDS);
     }
 
     public boolean isRunning() {
         return isRunning;
-    }
-
-    public void setRunning(boolean running) {
-        isRunning = running;
     }
 
     public Configuration getConfiguration() {
@@ -59,5 +57,9 @@ public class App {
 
     public World getWorld() {
         return world;
+    }
+
+    public GameTurn getGameTurn() {
+        return gameTurn;
     }
 }

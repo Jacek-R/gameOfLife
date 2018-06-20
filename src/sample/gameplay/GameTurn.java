@@ -7,6 +7,7 @@ public class GameTurn implements Runnable {
     private World world;
     private int turn;
     private int aliveCells;
+    private boolean pause;
 
     public GameTurn(World world) {
         this.world = world;
@@ -16,10 +17,12 @@ public class GameTurn implements Runnable {
 
     @Override
     public void run() {
-        checkCells();
-        updateCells();
-        printTurnSummary();
-        aliveCells = 0;
+        if (!pause) {
+            checkCells();
+            updateCells();
+            printTurnSummary();
+            aliveCells = 0;
+        }
     }
 
     private void checkCells() {
@@ -75,5 +78,9 @@ public class GameTurn implements Runnable {
 
     private void printTurnSummary() {
         System.out.println(String.format("Turn : %d ; Alive cells : %d", turn++, aliveCells));
+    }
+
+    public void togglePause() {
+        pause = !pause;
     }
 }

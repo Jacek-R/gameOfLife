@@ -69,6 +69,7 @@ public class GameScreen {
         start.setOnMousePressed(createStartListener());
 
         Button pause = createButton("Pause");
+        pause.setOnMousePressed(createPauseListener());
 
         Button restart = createButton("Restart");
         restart.setOnMousePressed(createRestartListener());
@@ -97,6 +98,14 @@ public class GameScreen {
         return event -> {
             if (!app.isRunning()) {
                 populateMapFromConfiguration();
+            }
+        };
+    }
+
+    private EventHandler<MouseEvent> createPauseListener() {
+        return event -> {
+            if (app.isRunning()) {
+                app.getGameTurn().togglePause();
             }
         };
     }
