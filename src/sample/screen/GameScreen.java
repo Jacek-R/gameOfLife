@@ -4,10 +4,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -251,6 +248,9 @@ public class GameScreen {
             comboBox.getItems().add(option);
         }
         comboBox.getSelectionModel().select(DEFAULT_SELECTION);
+        comboBox.setBackground(new Background(
+                new BackgroundImage(getImage("resources/combo.png"), null, null, null, null)));
+
         comboBox.valueProperty().addListener(createComboBoxChangeListener());
         comboBox.prefWidthProperty().bind(parent.widthProperty());
         return comboBox;
