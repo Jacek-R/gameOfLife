@@ -3,6 +3,7 @@ package sample.gameplay;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import sample.world.Cell;
+import sample.world.Configuration;
 import sample.world.World;
 
 public class GameTurn implements Runnable {
@@ -11,12 +12,14 @@ public class GameTurn implements Runnable {
     private int aliveCells;
     private boolean pause;
     private Label log;
+    private Configuration configuration;
 
-    public GameTurn(World world, Label log) {
+    public GameTurn(World world, Configuration configuration, Label log) {
         this.world = world;
         turn = 1;
         aliveCells = 0;
         this.log = log;
+        this.configuration = configuration;
     }
 
     @Override
@@ -46,13 +49,13 @@ public class GameTurn implements Runnable {
     }
 
     private void checkIfCellWillDie(Cell cell, int neighbours) {
-        if (cell.isAlive() && (neighbours < 2 || neighbours > 3)) {
+        if (cell.isAlive() && (neighbours < configuration.getMinimalCellsToStayAlive() || neighbours > configuration.getMaximumCellsToStayAlive())) {
             cell.setChangeStateInNextTurn(true);
         }
     }
 
     private void checkIfCellWillBorn(Cell cell, int neighbours) {
-        if (!cell.isAlive() && neighbours == 3) {
+        if (!cell.isAlive() && neighbours == configuration.getNeighboursToResurrectCell()) {
             cell.setChangeStateInNextTurn(true);
         }
     }

@@ -48,7 +48,9 @@ public class GameScreen {
     private ComboBox<Integer> heightBox;
     private ComboBox<Integer> intervalBox;
     private ComboBox<Integer> cellsBox;
-
+    private ComboBox<Integer> minCellsBox;
+    private ComboBox<Integer> maxCellsBox;
+    private ComboBox<Integer> neighboursBox;
     private Font font;
 
     private boolean gameParametersChanged;
@@ -209,6 +211,9 @@ public class GameScreen {
         configuration.setWidth(widthBox.getValue());
         configuration.setTurnInterval(intervalBox.getValue());
         configuration.setStartingAliveCells(cellsBox.getValue());
+        configuration.setMaximumCellsToStayAlive(maxCellsBox.getValue());
+        configuration.setMinimalCellsToStayAlive(minCellsBox.getValue());
+        configuration.setNeighboursToResurrectCell(neighboursBox.getValue());
         app.setup();
         createMap(app.getWorld(), gameMap);
         gameParametersChanged = false;
@@ -217,21 +222,30 @@ public class GameScreen {
     private GridPane createConfigurationSelections() {
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(PADDING));
-        GridConstraints.row(gridPane, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT);
+        GridConstraints.row(gridPane, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT);
         widthBox = createComboBox(gridPane, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50);
         heightBox = createComboBox(gridPane, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50);
         intervalBox = createComboBox(gridPane, 150, 250, 500, 750, 1000, 1500, 2000, 2500, 3000);
         cellsBox = createComboBox(gridPane, 0, 5, 10, 15, 20, 25, 30);
+        minCellsBox = createComboBox(gridPane, 1, 2, 3, 4, 5, 6, 7);
+        maxCellsBox = createComboBox(gridPane, 1, 2, 3, 4, 5, 6, 7);
+        neighboursBox = createComboBox(gridPane, 1, 2, 3, 4, 5, 6, 7, 8);
 
-        gridPane.addColumn(0, widthBox, heightBox, intervalBox, cellsBox);
+        minCellsBox.getSelectionModel().select(1);
+        maxCellsBox.getSelectionModel().select(2);
+        neighboursBox.getSelectionModel().select(2);
+
+        gridPane.addColumn(0, widthBox, heightBox, intervalBox, cellsBox, minCellsBox, maxCellsBox, neighboursBox);
         return gridPane;
     }
 
     private GridPane createConfigurationLabels() {
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(PADDING));
-        String[] labels = {"Width", "Height", "Interval", "Starting cells in percent"};
-        GridConstraints.row(gridPane, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT);
+        String[] labels = {
+                "Width", "Height", "Interval", "Starting cells in percent",
+                "Min cells to stay alive", "Max cells to stay alive", "Neighbours to resurrect"};
+        GridConstraints.row(gridPane, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT);
         for (int i = 0; i < labels.length; i++) {
             Text text = new Text(labels[i]);
             text.setFill(FONT_COLOR);

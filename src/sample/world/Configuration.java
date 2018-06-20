@@ -6,6 +6,9 @@ public class Configuration {
     private int height;
     private int startingAliveCells;
     private int turnInterval;
+    private int neighboursToResurrectCell;
+    private int minimalCellsToStayAlive;
+    private int maximumCellsToStayAlive;
 
     int getWidth() {
         return width;
@@ -37,5 +40,29 @@ public class Configuration {
 
     public void setTurnInterval(int turnInterval) {
         this.turnInterval = turnInterval;
+    }
+
+    public int getNeighboursToResurrectCell() {
+        return neighboursToResurrectCell;
+    }
+
+    public void setNeighboursToResurrectCell(int neighboursToResurrectCell) {
+        this.neighboursToResurrectCell = neighboursToResurrectCell;
+    }
+
+    public int getMinimalCellsToStayAlive() {
+        return minimalCellsToStayAlive;
+    }
+
+    public void setMinimalCellsToStayAlive(int minimalCellsToStayAlive) {
+        this.minimalCellsToStayAlive = minimalCellsToStayAlive;
+    }
+
+    public int getMaximumCellsToStayAlive() {
+        return maximumCellsToStayAlive;
+    }
+
+    public void setMaximumCellsToStayAlive(int maximumCellsToStayAlive) {
+        this.maximumCellsToStayAlive = maximumCellsToStayAlive;
     }
 }

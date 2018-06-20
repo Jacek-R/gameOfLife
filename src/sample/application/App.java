@@ -55,7 +55,7 @@ public class App {
     public void start(Label log) {
         isRunning = true;
         scheduler = Executors.newScheduledThreadPool(1);
-        gameTurn = new GameTurn(world, log);
+        gameTurn = new GameTurn(world, configuration, log);
         scheduler.scheduleAtFixedRate(gameTurn, DEFAULT_DELAY, configuration.getTurnInterval(), TimeUnit.MILLISECONDS);
     }
 
