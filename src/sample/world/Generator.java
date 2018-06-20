@@ -10,10 +10,10 @@ public class Generator {
         this.configuration = configuration;
     }
 
-
     public World getRandomlyPopulatedWorld() {
         World world = new World(configuration.getWidth(), configuration.getHeight());
-        populateWorldRandomly(world, configuration.getStartingAliveCells());
+        double aliveCells = world.getHeight() * world.getWidth() * (configuration.getStartingAliveCells() / 100.0);
+        populateWorldRandomly(world, ((int) aliveCells));
         return world;
     }
 
