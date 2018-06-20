@@ -7,12 +7,6 @@ public class Configuration {
     private int startingAliveCells;
     private int turnInterval;
 
-    public Configuration(int width, int height, int startingAliveCells, int turnInterval) {
-        this.width = width;
-        this.height = height;
-        this.startingAliveCells = startingAliveCells;
-        this.turnInterval = turnInterval;
-    }
 
     public int getWidth() {
         return width;
@@ -28,5 +22,21 @@ public class Configuration {
 
     public int getTurnInterval() {
         return turnInterval;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
+    public void setStartingAliveCells(int startingAliveCells) {
+        this.startingAliveCells = startingAliveCells;
+    }
+
+    public void setTurnInterval(int turnInterval) {
+        this.turnInterval = turnInterval;
     }
 }
