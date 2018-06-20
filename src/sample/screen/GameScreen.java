@@ -74,9 +74,20 @@ public class GameScreen {
         Button restart = createButton("Restart");
         restart.setOnMousePressed(createRestartListener());
 
+        Button stop = createButton("Stop");
+        stop.setOnMousePressed(createStopListener());
+
         GridConstraints.row(gridPane, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT);
-        gridPane.addColumn(0, start, pause, restart);
+        gridPane.addColumn(0, start, pause, restart, stop);
         return gridPane;
+    }
+
+    private EventHandler<MouseEvent> createStopListener() {
+        return event -> {
+            if (app.isRunning()) {
+                app.stop();
+            }
+        };
     }
 
     private Button createButton(String text) {

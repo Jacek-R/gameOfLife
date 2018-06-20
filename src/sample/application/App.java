@@ -15,6 +15,8 @@ public class App {
 
     private static final int DEFAULT_DELAY = 1500;
 
+    private ScheduledExecutorService scheduler;
+
     private Configuration configuration;
     private Stage primaryStage;
     private World world;
@@ -42,9 +44,14 @@ public class App {
 
     public void start() {
         isRunning = true;
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        scheduler = Executors.newScheduledThreadPool(1);
         gameTurn = new GameTurn(world);
         scheduler.scheduleAtFixedRate(gameTurn, DEFAULT_DELAY, configuration.getTurnInterval(), TimeUnit.MILLISECONDS);
+    }
+
+    public void stop() {
+        scheduler.shutdown();
+        isRunning = false;
     }
 
     public boolean isRunning() {
