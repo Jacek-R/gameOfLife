@@ -125,8 +125,8 @@ public class GameScreen {
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(PADDING));
         GridConstraints.row(gridPane, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT);
-        widthBox = createComboBox(5, 10, 15, 20, 25, 30);
-        heightBox = createComboBox(5, 10, 15, 20, 25, 30);
+        widthBox = createComboBox(5, 10, 15, 20, 25, 30, 35, 40, 45, 50);
+        heightBox = createComboBox(5, 10, 15, 20, 25, 30, 35, 40, 45, 50);
         intervalBox = createComboBox(150, 250, 500, 750, 1000, 1500, 2000, 2500, 3000);
         cellsBox = createComboBox(0, 5, 10, 15, 20, 25, 30);
         gridPane.addColumn(0, widthBox, heightBox, intervalBox, cellsBox);
