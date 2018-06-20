@@ -7,16 +7,15 @@ public class Configuration {
     private int startingAliveCells;
     private int turnInterval;
 
-
-    public int getWidth() {
+    int getWidth() {
         return width;
     }
 
-    public int getHeight() {
+    int getHeight() {
         return height;
     }
 
-    public int getStartingAliveCells() {
+    int getStartingAliveCells() {
         return startingAliveCells;
     }
 
