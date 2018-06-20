@@ -165,6 +165,7 @@ public class GameScreen {
                 if (gameParametersChanged) {
                     populateMapFromConfiguration();
                 }
+                log.setText("");
                 app.start(log);
             }
         };
