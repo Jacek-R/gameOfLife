@@ -13,9 +13,13 @@ import java.util.concurrent.TimeUnit;
 
 public class App {
 
+    private static final int DEFAULT_DELAY = 1500;
+
     private Configuration configuration;
     private Stage primaryStage;
     private World world;
+
+    private boolean isRunning;
 
     public App(Configuration configuration, Stage primaryStage) {
         this.configuration = configuration;
@@ -28,15 +32,32 @@ public class App {
     }
 
     public void prepareScene() {
-        GameScreen screen = new GameScreen();
+        GameScreen screen = new GameScreen(this);
 
-        primaryStage.setScene(screen.createScene(world));
+        primaryStage.setScene(screen.createScene());
         primaryStage.setFullScreen(true);
         primaryStage.show();
     }
 
     public void start() {
+        isRunning = true;
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleAtFixedRate(new GameTurn(world), 2000, configuration.getTurnInterval(), TimeUnit.MILLISECONDS);
+        scheduler.scheduleAtFixedRate(new GameTurn(world), DEFAULT_DELAY, configuration.getTurnInterval(), TimeUnit.MILLISECONDS);
+    }
+
+    public boolean isRunning() {
+        return isRunning;
+    }
+
+    public void setRunning(boolean running) {
+        isRunning = running;
+    }
+
+    public Configuration getConfiguration() {
+        return configuration;
+    }
+
+    public World getWorld() {
+        return world;
     }
 }
