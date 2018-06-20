@@ -166,9 +166,18 @@ public class GameScreen {
                 Cell cell = world.getCellAt(x, y);
                 ImageView imageView = cell.getImageView();
                 StackPane stackPane = createStackPaneWithCellImage(imageView, cell.getImage());
+                stackPane.setOnMousePressed(addCellClickListener(cell));
                 gridPane.add(stackPane, x, y);
             }
         }
+    }
+
+    private EventHandler<MouseEvent> addCellClickListener(Cell cell) {
+        return event -> {
+            if (!app.isRunning()) {
+                cell.setAlive(!cell.isAlive());
+            }
+        };
     }
 
     private StackPane createStackPaneWithCellImage(ImageView imageView, Image image) {
