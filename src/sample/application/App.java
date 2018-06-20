@@ -39,7 +39,15 @@ public class App {
 
         primaryStage.setScene(screen.createScene());
         primaryStage.setFullScreen(true);
+        setOnCloseHandler();
         primaryStage.show();
+    }
+
+    private void setOnCloseHandler() {
+        primaryStage.setOnCloseRequest(event -> {
+            isRunning = false;
+            scheduler.shutdown();
+        });
     }
 
     public void start() {
