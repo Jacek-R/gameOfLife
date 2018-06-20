@@ -11,10 +11,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundImage;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -105,18 +102,20 @@ public class GameScreen {
 
     private GridPane createRightPanel() {
         GridPane gridPane = new GridPane();
+        gridPane.setVgap(PADDING);
         gridPane.setPadding(new Insets(PADDING));
-        Button start = createButton("Start");
-        start.setOnMousePressed(createStartListener());
 
-        Button pause = createButton("Pause");
-        pause.setOnMousePressed(createPauseListener());
+        StackPane start = createButton("Start");
+        start.setOnMousePressed(createStartListener(start));
 
-        Button restart = createButton("Refresh");
-        restart.setOnMousePressed(createRestartListener());
+        StackPane pause = createButton("Pause");
+        pause.setOnMousePressed(createPauseListener(pause));
 
-        Button stop = createButton("Stop");
-        stop.setOnMousePressed(createStopListener());
+        StackPane restart = createButton("Refresh");
+        restart.setOnMousePressed(createRestartListener(restart));
+
+        StackPane stop = createButton("Stop");
+        stop.setOnMousePressed(createStopListener(stop));
 
         Label help = new Label(HELP_TEXT);
         help.setTextFill(FONT_COLOR);
@@ -147,20 +146,38 @@ public class GameScreen {
         return scrollPane;
     }
 
-    private EventHandler<MouseEvent> createStopListener() {
+    private EventHandler<MouseEvent> createStopListener(StackPane stackPane) {
         return event -> {
+            stackPane.setOpacity(0.6f);
             if (app.isRunning()) {
                 app.stop();
             }
         };
     }
 
-    private Button createButton(String text) {
-        return new Button(text);
+    private void addListenerToPane(StackPane stackPane, Text text) {
+        stackPane.setOnMouseEntered(event -> text.setFill(FONT_COLOR));
+        stackPane.setOnMouseReleased(event -> stackPane.setOpacity(1f));
+        stackPane.setOnMouseExited(event -> text.setFill(Color.BLACK));
     }
 
-    private EventHandler<MouseEvent> createStartListener() {
+    private StackPane createButton(String message) {
+        StackPane stackPane = new StackPane();
+        stackPane.setMinSize(0, 0);
+        Text text = new Text(message);
+        text.setFont(font);
+        ImageView imageView = new ImageView();
+        imageView.setImage(getImage("resources/button.png"));
+        imageView.fitWidthProperty().bind(stackPane.widthProperty());
+        imageView.fitHeightProperty().bind(stackPane.heightProperty());
+        stackPane.getChildren().addAll(imageView, text);
+        addListenerToPane(stackPane, text);
+        return stackPane;
+    }
+
+    private EventHandler<MouseEvent> createStartListener(StackPane stackPane) {
         return event -> {
+            stackPane.setOpacity(0.6f);
             if (!app.isRunning()) {
                 if (gameParametersChanged) {
                     populateMapFromConfiguration();
@@ -171,16 +188,18 @@ public class GameScreen {
         };
     }
 
-    private EventHandler<MouseEvent> createRestartListener() {
+    private EventHandler<MouseEvent> createRestartListener(StackPane stackPane) {
         return event -> {
+            stackPane.setOpacity(0.6f);
             if (!app.isRunning()) {
                 populateMapFromConfiguration();
             }
         };
     }
 
-    private EventHandler<MouseEvent> createPauseListener() {
+    private EventHandler<MouseEvent> createPauseListener(StackPane stackPane) {
         return event -> {
+            stackPane.setOpacity(0.6f);
             if (app.isRunning()) {
                 app.getGameTurn().togglePause();
             }
@@ -202,10 +221,11 @@ public class GameScreen {
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(PADDING));
         GridConstraints.row(gridPane, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT);
-        widthBox = createComboBox(5, 10, 15, 20, 25, 30, 35, 40, 45, 50);
-        heightBox = createComboBox(5, 10, 15, 20, 25, 30, 35, 40, 45, 50);
-        intervalBox = createComboBox(150, 250, 500, 750, 1000, 1500, 2000, 2500, 3000);
-        cellsBox = createComboBox(0, 5, 10, 15, 20, 25, 30);
+        widthBox = createComboBox(gridPane, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50);
+        heightBox = createComboBox(gridPane, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50);
+        intervalBox = createComboBox(gridPane, 150, 250, 500, 750, 1000, 1500, 2000, 2500, 3000);
+        cellsBox = createComboBox(gridPane, 0, 5, 10, 15, 20, 25, 30);
+
         gridPane.addColumn(0, widthBox, heightBox, intervalBox, cellsBox);
         return gridPane;
     }
@@ -224,7 +244,7 @@ public class GameScreen {
         return gridPane;
     }
 
-    private ComboBox<Integer> createComboBox(int... options) {
+    private ComboBox<Integer> createComboBox(GridPane parent, int... options) {
         int DEFAULT_SELECTION = 3;
         ComboBox<Integer> comboBox = new ComboBox<>();
         for (int option : options) {
@@ -232,6 +252,7 @@ public class GameScreen {
         }
         comboBox.getSelectionModel().select(DEFAULT_SELECTION);
         comboBox.valueProperty().addListener(createComboBoxChangeListener());
+        comboBox.prefWidthProperty().bind(parent.widthProperty());
         return comboBox;
     }
 
