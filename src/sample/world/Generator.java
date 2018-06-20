@@ -17,10 +17,6 @@ public class Generator {
         return world;
     }
 
-    public World getEmptyWorld() {
-        return new World(configuration.getWidth(), configuration.getHeight());
-    }
-
     private void populateWorldRandomly(World world, int aliveCells) {
         Random rng = new Random();
         for (int i = 0; i < aliveCells; i++) {
