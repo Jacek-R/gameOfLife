@@ -45,8 +45,9 @@ public class App {
 
     private void setOnCloseHandler() {
         primaryStage.setOnCloseRequest(event -> {
-            isRunning = false;
-            scheduler.shutdown();
+            if (isRunning) {
+                scheduler.shutdown();
+            }
         });
     }
 
