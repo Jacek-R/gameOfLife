@@ -8,7 +8,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import sample.screen.utils.GridConstraints;
 import sample.world.Cell;
@@ -27,6 +26,12 @@ public class GameScreen {
     private static final double MAP_WIDTH = 50.0;
 
     private static final double ELEMENTS_HEIGHT = 100.0;
+
+    private ComboBox<Integer> widthBox;
+    private ComboBox<Integer> heightBox;
+    private ComboBox<Integer> intervalBox;
+    private ComboBox<Integer> cellsBox;
+
 
     public Scene createScene(World world) {
         this.width = world.getWidth();
@@ -67,11 +72,11 @@ public class GameScreen {
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(PADDING));
         GridConstraints.row(gridPane, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT);
-        ComboBox<Integer> widths = createComboBox(5, 10, 15, 20, 25, 30);
-        ComboBox<Integer> heights = createComboBox(5, 10, 15, 20, 25, 30);
-        ComboBox<Integer> intervals = createComboBox(150, 250, 500, 750, 1000, 1500, 2000, 2500, 3000);
-        ComboBox<Integer> cellsInPercentage = createComboBox(5, 10, 15, 20, 25, 30);
-        gridPane.addColumn(0, widths, heights, intervals, cellsInPercentage);
+        widthBox = createComboBox(5, 10, 15, 20, 25, 30);
+        heightBox = createComboBox(5, 10, 15, 20, 25, 30);
+        intervalBox = createComboBox(150, 250, 500, 750, 1000, 1500, 2000, 2500, 3000);
+        cellsBox = createComboBox(5, 10, 15, 20, 25, 30);
+        gridPane.addColumn(0, widthBox, heightBox, intervalBox, cellsBox);
         return gridPane;
     }
 
