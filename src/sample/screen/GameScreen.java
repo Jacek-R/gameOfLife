@@ -3,15 +3,18 @@ package sample.screen;
 import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import sample.application.App;
 import sample.screen.utils.GridConstraints;
 import sample.world.Cell;
@@ -28,6 +31,7 @@ public class GameScreen {
     private static final double MAP_WIDTH = 50.0;
 
     private static final double ELEMENTS_HEIGHT = 100.0;
+    private static final double HELP_HEIGHT = 50.0;
 
     private App app;
     private GridPane gameMap;
@@ -77,8 +81,14 @@ public class GameScreen {
         Button stop = createButton("Stop");
         stop.setOnMousePressed(createStopListener());
 
-        GridConstraints.row(gridPane, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT);
-        gridPane.addColumn(0, start, pause, restart, stop);
+        Label help = new Label("Click start to begin simulation.\n\nRestart if you want to refresh playing field.\n\nYou can pause and continue" +
+                " the game with Pause button.\n\nWhen you click the stop button, the simulation will end, and you need to start it again\n\n" +
+                "You can also click the cells in the grid to toggle their status (when the simulation is not in progress)");
+        help.setWrapText(true);
+        help.setTextAlignment(TextAlignment.JUSTIFY);
+
+        GridConstraints.row(gridPane, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, HELP_HEIGHT);
+        gridPane.addColumn(0, start, pause, restart, stop, help);
         return gridPane;
     }
 
