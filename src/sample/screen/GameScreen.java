@@ -1,22 +1,24 @@
 package sample.screen;
 
+import javafx.beans.value.ChangeListener;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
+import sample.application.App;
 import sample.screen.utils.GridConstraints;
 import sample.world.Cell;
+import sample.world.Configuration;
 import sample.world.World;
 
 public class GameScreen {
-
-    private int width;
-    private int height;
 
     private static final double PADDING = 6.0;
     private static final double OPTIONS_HEIGHT = 10.0;
@@ -27,29 +29,36 @@ public class GameScreen {
 
     private static final double ELEMENTS_HEIGHT = 100.0;
 
+    private App app;
+    private GridPane gameMap;
+
     private ComboBox<Integer> widthBox;
     private ComboBox<Integer> heightBox;
     private ComboBox<Integer> intervalBox;
     private ComboBox<Integer> cellsBox;
 
+    private boolean gameParametersChanged;
 
-    public Scene createScene(World world) {
-        this.width = world.getWidth();
-        this.height = world.getHeight();
-        GridPane root = createRoot(world);
+    public GameScreen(App app) {
+        this.app = app;
+    }
+
+    public Scene createScene() {
+        GridPane root = createRoot();
         return new Scene(root);
     }
 
-    private GridPane createRoot(World world) {
+    private GridPane createRoot() {
         GridPane root = new GridPane();
         GridPane configurationLabelsBox = createConfigurationLabels();
         GridPane configurationSelectionsBox = createConfigurationSelections();
         GridPane controlPanelBox = createButtons();
-        GridPane gameMap = createMap(world);
+        gameMap = new GridPane();
 
         GridConstraints.column(root, CONFIGURATION_LABELS_WIDTH, CONFIGURATION_SELECTIONS_WIDTH, MAP_WIDTH, CONTROL_WIDTH);
         GridConstraints.row(root, ELEMENTS_HEIGHT);
         root.addRow(0, configurationLabelsBox, configurationSelectionsBox, gameMap, controlPanelBox);
+        populateMapFromConfiguration();
         return root;
     }
 
@@ -57,8 +66,13 @@ public class GameScreen {
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(PADDING));
         Button start = createButton("Start");
+        start.setOnMousePressed(createStartListener());
+
         Button pause = createButton("Pause");
+
         Button restart = createButton("Restart");
+        restart.setOnMousePressed(createRestartListener());
+
         GridConstraints.row(gridPane, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT);
         gridPane.addColumn(0, start, pause, restart);
         return gridPane;
@@ -68,6 +82,36 @@ public class GameScreen {
         return new Button(text);
     }
 
+    private EventHandler<MouseEvent> createStartListener() {
+        return event -> {
+            if (!app.isRunning()) {
+                if (gameParametersChanged) {
+                    populateMapFromConfiguration();
+                }
+                app.start();
+            }
+        };
+    }
+
+    private EventHandler<MouseEvent> createRestartListener() {
+        return event -> {
+            if (!app.isRunning()) {
+                populateMapFromConfiguration();
+            }
+        };
+    }
+
+    private void populateMapFromConfiguration() {
+        Configuration configuration = app.getConfiguration();
+        configuration.setHeight(heightBox.getValue());
+        configuration.setWidth(widthBox.getValue());
+        configuration.setTurnInterval(intervalBox.getValue());
+        configuration.setStartingAliveCells(cellsBox.getValue());
+        app.setup();
+        createMap(app.getWorld(), gameMap);
+        gameParametersChanged = false;
+    }
+
     private GridPane createConfigurationSelections() {
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(PADDING));
@@ -75,7 +119,7 @@ public class GameScreen {
         widthBox = createComboBox(5, 10, 15, 20, 25, 30);
         heightBox = createComboBox(5, 10, 15, 20, 25, 30);
         intervalBox = createComboBox(150, 250, 500, 750, 1000, 1500, 2000, 2500, 3000);
-        cellsBox = createComboBox(5, 10, 15, 20, 25, 30);
+        cellsBox = createComboBox(0, 5, 10, 15, 20, 25, 30);
         gridPane.addColumn(0, widthBox, heightBox, intervalBox, cellsBox);
         return gridPane;
     }
@@ -91,25 +135,31 @@ public class GameScreen {
         return gridPane;
     }
 
-    private <T> ComboBox<T> createComboBox(T... options) {
-        ComboBox<T> comboBox = new ComboBox<>();
-        for (T option : options) {
+    private ComboBox<Integer> createComboBox(int... options) {
+        int DEFAULT_SELECTION = 3;
+        ComboBox<Integer> comboBox = new ComboBox<>();
+        for (int option : options) {
             comboBox.getItems().add(option);
         }
+        comboBox.getSelectionModel().select(DEFAULT_SELECTION);
+        comboBox.valueProperty().addListener(createComboBoxChangeListener());
         return comboBox;
     }
 
-    private GridPane createMap(World world) {
-        GridPane gridPane = new GridPane();
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
+    private ChangeListener<Integer> createComboBoxChangeListener() {
+        return (observable, oldValue, newValue) -> gameParametersChanged = true;
+    }
+
+    private void createMap(World world, GridPane gridPane) {
+        gridPane.getChildren().clear();
+        for (int x = 0; x < world.getWidth(); x++) {
+            for (int y = 0; y < world.getHeight(); y++) {
                 Cell cell = world.getCellAt(x, y);
                 ImageView imageView = cell.getImageView();
                 StackPane stackPane = createStackPaneWithCellImage(imageView, cell.getImage());
                 gridPane.add(stackPane, x, y);
             }
         }
-        return gridPane;
     }
 
     private StackPane createStackPaneWithCellImage(ImageView imageView, Image image) {
