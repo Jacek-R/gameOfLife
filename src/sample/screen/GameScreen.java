@@ -11,8 +11,13 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import sample.application.App;
@@ -20,6 +25,9 @@ import sample.screen.utils.GridConstraints;
 import sample.world.Cell;
 import sample.world.Configuration;
 import sample.world.World;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 
 public class GameScreen {
 
@@ -35,6 +43,8 @@ public class GameScreen {
     private static final String HELP_TEXT = "Click start to begin simulation.\n\nRestart if you want to refresh playing field.\n\nYou can pause and continue" +
             " the game with Pause button.\n\nWhen you click the stop button, the simulation will end, and you need to start it again\n\n" +
             "You can also click the cells in the grid to toggle their status (when the simulation is not in progress)";
+    private static final double FONT_SIZE = 12;
+    private static final Color FONT_COLOR = Color.YELLOW;
 
     private App app;
     private GridPane gameMap;
@@ -45,22 +55,45 @@ public class GameScreen {
     private ComboBox<Integer> intervalBox;
     private ComboBox<Integer> cellsBox;
 
+    private Font font;
+
     private boolean gameParametersChanged;
 
     public GameScreen(App app) {
         this.app = app;
+        font = Font.font(null, FontWeight.BOLD, FONT_SIZE);
     }
 
     public Scene createScene() {
         GridPane root = createRoot();
+        setRootBackground(root);
         return new Scene(root);
+    }
+
+    private void setRootBackground(GridPane root) {
+        Image image = getImage("resources/background.png");
+        BackgroundImage backgroundImage = new BackgroundImage(image, null, null, null, null);
+        Background background = new Background(backgroundImage);
+        root.setBackground(background);
+    }
+
+
+    private Image getImage(String path) {
+        Image image = null;
+        try {
+            image = new Image(new FileInputStream(path));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return image;
     }
 
     private GridPane createRoot() {
         GridPane root = new GridPane();
+        root.setPadding(new Insets(PADDING));
         GridPane configurationLabelsBox = createConfigurationLabels();
         GridPane configurationSelectionsBox = createConfigurationSelections();
-        GridPane controlPanelBox = createButtons();
+        GridPane controlPanelBox = createRightPanel();
         gameMap = new GridPane();
 
         GridConstraints.column(root, CONFIGURATION_LABELS_WIDTH, CONFIGURATION_SELECTIONS_WIDTH, MAP_WIDTH, CONTROL_WIDTH);
@@ -70,7 +103,7 @@ public class GameScreen {
         return root;
     }
 
-    private GridPane createButtons() {
+    private GridPane createRightPanel() {
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(PADDING));
         Button start = createButton("Start");
@@ -86,15 +119,32 @@ public class GameScreen {
         stop.setOnMousePressed(createStopListener());
 
         Label help = new Label(HELP_TEXT);
+        help.setTextFill(FONT_COLOR);
+        help.setFont(font);
         help.setWrapText(true);
         help.setTextAlignment(TextAlignment.JUSTIFY);
 
-        log = new Label();
-        ScrollPane scrollPane = new ScrollPane(log);
-
+        ScrollPane scrollPane = createLog();
         GridConstraints.row(gridPane, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, TEXT_HEIGHT, TEXT_HEIGHT);
         gridPane.addColumn(0, start, pause, restart, stop, help, scrollPane);
         return gridPane;
+    }
+
+    private ScrollPane createLog() {
+        log = new Label();
+        log.setTextFill(FONT_COLOR);
+        ScrollPane scrollPane = new ScrollPane(log);
+
+        log.prefHeightProperty().bind(scrollPane.heightProperty());
+        log.prefWidthProperty().bind(scrollPane.widthProperty());
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        Image image = getImage("resources/scrollbg.png");
+        BackgroundImage backgroundImage = new BackgroundImage(image, null, null, null, null);
+        Background background = new Background(backgroundImage);
+
+        log.setBackground(background);
+        return scrollPane;
     }
 
     private EventHandler<MouseEvent> createStopListener() {
@@ -165,7 +215,10 @@ public class GameScreen {
         String[] labels = {"Width", "Height", "Interval", "Starting cells in percent"};
         GridConstraints.row(gridPane, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT);
         for (int i = 0; i < labels.length; i++) {
-            gridPane.add(new Text(labels[i]), 0, i);
+            Text text = new Text(labels[i]);
+            text.setFill(FONT_COLOR);
+            text.setFont(font);
+            gridPane.add(text, 0, i);
         }
         return gridPane;
     }
