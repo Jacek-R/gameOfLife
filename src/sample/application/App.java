@@ -1,5 +1,6 @@
 package sample.application;
 
+import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import sample.gameplay.GameTurn;
 import sample.screen.GameScreen;
@@ -51,10 +52,10 @@ public class App {
         });
     }
 
-    public void start() {
+    public void start(Label log) {
         isRunning = true;
         scheduler = Executors.newScheduledThreadPool(1);
-        gameTurn = new GameTurn(world);
+        gameTurn = new GameTurn(world, log);
         scheduler.scheduleAtFixedRate(gameTurn, DEFAULT_DELAY, configuration.getTurnInterval(), TimeUnit.MILLISECONDS);
     }
 

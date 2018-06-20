@@ -1,5 +1,7 @@
 package sample.gameplay;
 
+import javafx.application.Platform;
+import javafx.scene.control.Label;
 import sample.world.Cell;
 import sample.world.World;
 
@@ -8,11 +10,13 @@ public class GameTurn implements Runnable {
     private int turn;
     private int aliveCells;
     private boolean pause;
+    private Label log;
 
-    public GameTurn(World world) {
+    public GameTurn(World world, Label log) {
         this.world = world;
         turn = 1;
         aliveCells = 0;
+        this.log = log;
     }
 
     @Override
@@ -20,7 +24,7 @@ public class GameTurn implements Runnable {
         if (!pause) {
             checkCells();
             updateCells();
-            printTurnSummary();
+            printTurnSummary(aliveCells);
             aliveCells = 0;
         }
     }
@@ -76,8 +80,8 @@ public class GameTurn implements Runnable {
         }
     }
 
-    private void printTurnSummary() {
-        System.out.println(String.format("Turn : %d ; Alive cells : %d", turn++, aliveCells));
+    private void printTurnSummary(int aliveCells) {
+        Platform.runLater(() -> log.setText(String.format("Turn : %d ; Alive cells : %d\n", turn++, aliveCells) + log.getText()));
     }
 
     public void togglePause() {

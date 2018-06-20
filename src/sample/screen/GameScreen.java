@@ -3,11 +3,11 @@ package sample.screen;
 import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -24,17 +24,21 @@ import sample.world.World;
 public class GameScreen {
 
     private static final double PADDING = 6.0;
-    private static final double OPTIONS_HEIGHT = 10.0;
+    private static final double OPTIONS_HEIGHT = 7.5;
     private static final double CONFIGURATION_LABELS_WIDTH = 15.0;
     private static final double CONFIGURATION_SELECTIONS_WIDTH = 10.0;
     private static final double CONTROL_WIDTH = 25.0;
     private static final double MAP_WIDTH = 50.0;
 
     private static final double ELEMENTS_HEIGHT = 100.0;
-    private static final double HELP_HEIGHT = 50.0;
+    private static final double TEXT_HEIGHT = 30.0;
+    private static final String HELP_TEXT = "Click start to begin simulation.\n\nRestart if you want to refresh playing field.\n\nYou can pause and continue" +
+            " the game with Pause button.\n\nWhen you click the stop button, the simulation will end, and you need to start it again\n\n" +
+            "You can also click the cells in the grid to toggle their status (when the simulation is not in progress)";
 
     private App app;
     private GridPane gameMap;
+    private Label log;
 
     private ComboBox<Integer> widthBox;
     private ComboBox<Integer> heightBox;
@@ -75,20 +79,21 @@ public class GameScreen {
         Button pause = createButton("Pause");
         pause.setOnMousePressed(createPauseListener());
 
-        Button restart = createButton("Restart");
+        Button restart = createButton("Refresh");
         restart.setOnMousePressed(createRestartListener());
 
         Button stop = createButton("Stop");
         stop.setOnMousePressed(createStopListener());
 
-        Label help = new Label("Click start to begin simulation.\n\nRestart if you want to refresh playing field.\n\nYou can pause and continue" +
-                " the game with Pause button.\n\nWhen you click the stop button, the simulation will end, and you need to start it again\n\n" +
-                "You can also click the cells in the grid to toggle their status (when the simulation is not in progress)");
+        Label help = new Label(HELP_TEXT);
         help.setWrapText(true);
         help.setTextAlignment(TextAlignment.JUSTIFY);
 
-        GridConstraints.row(gridPane, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, HELP_HEIGHT);
-        gridPane.addColumn(0, start, pause, restart, stop, help);
+        log = new Label();
+        ScrollPane scrollPane = new ScrollPane(log);
+
+        GridConstraints.row(gridPane, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, TEXT_HEIGHT, TEXT_HEIGHT);
+        gridPane.addColumn(0, start, pause, restart, stop, help, scrollPane);
         return gridPane;
     }
 
@@ -110,7 +115,7 @@ public class GameScreen {
                 if (gameParametersChanged) {
                     populateMapFromConfiguration();
                 }
-                app.start();
+                app.start(log);
             }
         };
     }
