@@ -73,8 +73,5 @@ public class Configuration {
                 arrayList.add(Integer.parseInt(checkBox.getText()));
             }
         }
-        if (arrayList.isEmpty()) {
-            arrayList.add(0);
-        }
     }
 }
