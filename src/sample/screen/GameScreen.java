@@ -36,7 +36,9 @@ public class GameScreen {
     private static final double TEXT_HEIGHT = 30.0;
     private static final String HELP_TEXT = "Click start to begin simulation.\n\nRestart if you want to refresh playing field.\n\nYou can pause and continue" +
             " the game with Pause button.\n\nWhen you click the stop button, the simulation will end, and you need to start it again\n\n" +
-            "You can also click the cells in the grid to toggle their status (when the simulation is not in progress)";
+            "You can also click the cells in the grid to toggle their status (when the simulation is not in progress)\n\n" +
+            "Remember that the game will create new world after any of the values will change. If you want to create a custom world, then first" +
+            " set values and click refresh. After this, you can populate the world as you wish.";
     private static final double FONT_SIZE = 12;
     private static final Color FONT_COLOR = Color.YELLOW;
 
@@ -48,9 +50,10 @@ public class GameScreen {
     private ComboBox<Integer> heightBox;
     private ComboBox<Integer> intervalBox;
     private ComboBox<Integer> cellsBox;
-    private ComboBox<Integer> minCellsBox;
-    private ComboBox<Integer> maxCellsBox;
-    private ComboBox<Integer> neighboursBox;
+
+    private CheckBox[] deathCheckBoxes = new CheckBox[9];
+    private CheckBox[] lifeCheckBoxes = new CheckBox[9];
+
     private Font font;
 
     private boolean gameParametersChanged;
@@ -95,6 +98,7 @@ public class GameScreen {
         GridConstraints.column(root, CONFIGURATION_LABELS_WIDTH, CONFIGURATION_SELECTIONS_WIDTH, MAP_WIDTH, CONTROL_WIDTH);
         GridConstraints.row(root, ELEMENTS_HEIGHT);
         root.addRow(0, configurationLabelsBox, configurationSelectionsBox, gameMap, controlPanelBox);
+        setDefaultGameRules();
         populateMapFromConfiguration();
         return root;
     }
@@ -123,7 +127,7 @@ public class GameScreen {
         help.setTextAlignment(TextAlignment.JUSTIFY);
 
         ScrollPane scrollPane = createLog();
-        GridConstraints.row(gridPane, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, TEXT_HEIGHT, TEXT_HEIGHT);
+        GridConstraints.row(gridPane, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, 45, 15);
         gridPane.addColumn(0, start, pause, restart, stop, help, scrollPane);
         return gridPane;
     }
@@ -211,9 +215,8 @@ public class GameScreen {
         configuration.setWidth(widthBox.getValue());
         configuration.setTurnInterval(intervalBox.getValue());
         configuration.setStartingAliveCells(cellsBox.getValue());
-        configuration.setMaximumCellsToStayAlive(maxCellsBox.getValue());
-        configuration.setMinimalCellsToStayAlive(minCellsBox.getValue());
-        configuration.setNeighboursToResurrectCell(neighboursBox.getValue());
+        configuration.setAliveRequirements(deathCheckBoxes);
+        configuration.setBornRequirements(lifeCheckBoxes);
         app.setup();
         createMap(app.getWorld(), gameMap);
         gameParametersChanged = false;
@@ -222,20 +225,13 @@ public class GameScreen {
     private GridPane createConfigurationSelections() {
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(PADDING));
-        GridConstraints.row(gridPane, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT);
+        GridConstraints.row(gridPane, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT);
         widthBox = createComboBox(gridPane, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50);
         heightBox = createComboBox(gridPane, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50);
         intervalBox = createComboBox(gridPane, 150, 250, 500, 750, 1000, 1500, 2000, 2500, 3000);
         cellsBox = createComboBox(gridPane, 0, 5, 10, 15, 20, 25, 30);
-        minCellsBox = createComboBox(gridPane, 1, 2, 3, 4, 5, 6, 7);
-        maxCellsBox = createComboBox(gridPane, 1, 2, 3, 4, 5, 6, 7);
-        neighboursBox = createComboBox(gridPane, 1, 2, 3, 4, 5, 6, 7, 8);
 
-        minCellsBox.getSelectionModel().select(1);
-        maxCellsBox.getSelectionModel().select(2);
-        neighboursBox.getSelectionModel().select(2);
-
-        gridPane.addColumn(0, widthBox, heightBox, intervalBox, cellsBox, minCellsBox, maxCellsBox, neighboursBox);
+        gridPane.addColumn(0, widthBox, heightBox, intervalBox, cellsBox);
         return gridPane;
     }
 
@@ -243,20 +239,47 @@ public class GameScreen {
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(PADDING));
         String[] labels = {
-                "Width", "Height", "Interval", "Starting cells in percent",
-                "Min cells to stay alive", "Max cells to stay alive", "Neighbours to resurrect"};
-        GridConstraints.row(gridPane, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT);
+                "Width", "Height", "Interval", "Starting cells in percent"};
+        GridConstraints.row(gridPane, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, OPTIONS_HEIGHT, 20, 20);
         for (int i = 0; i < labels.length; i++) {
             Text text = new Text(labels[i]);
             text.setFill(FONT_COLOR);
             text.setFont(font);
             gridPane.add(text, 0, i);
         }
+
+        GridPane deathCheckBoxesContainer = createCheckBoxes(deathCheckBoxes, "The cell needs X neighbours to stay alive : ");
+        GridPane lifeCheckBoxesContainer = createCheckBoxes(lifeCheckBoxes, "The cell will born when have X neighbours : ");
+
+        gridPane.add(deathCheckBoxesContainer, 0, labels.length);
+        gridPane.add(lifeCheckBoxesContainer, 0, labels.length + 1);
         return gridPane;
     }
 
+    private GridPane createCheckBoxes(CheckBox[] checkBoxesReference, String headerMessage) {
+        GridPane checkBoxesContainer = new GridPane();
+        Text header = new Text(headerMessage);
+        header.setFont(font);
+        header.setFill(FONT_COLOR);
+        checkBoxesContainer.add(header, 0, 0, 3, 1);
+        GridConstraints.column(checkBoxesContainer, 30, 30, 30);
+        checkBoxesContainer.setVgap(PADDING);
+
+        int columnIndex = 0;
+        int maxColumn = 3;
+        for (int i = 0; i < 9; i++) {
+            CheckBox checkBox = new CheckBox(String.valueOf(i));
+            checkBox.setTextFill(FONT_COLOR);
+            checkBoxesReference[i] = checkBox;
+            checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> gameParametersChanged = true);
+            checkBoxesContainer.add(checkBox, columnIndex, i / 3 + 1);
+            columnIndex = columnIndex + 1 == maxColumn ? 0 : columnIndex + 1;
+        }
+        return checkBoxesContainer;
+    }
+
     private ComboBox<Integer> createComboBox(GridPane parent, int... options) {
-        int DEFAULT_SELECTION = 3;
+        int DEFAULT_SELECTION = 0;
         ComboBox<Integer> comboBox = new ComboBox<>();
         for (int option : options) {
             comboBox.getItems().add(option);
@@ -293,6 +316,12 @@ public class GameScreen {
                 cell.setAlive(!cell.isAlive());
             }
         };
+    }
+
+    private void setDefaultGameRules() {
+        deathCheckBoxes[2].setSelected(true);
+        deathCheckBoxes[3].setSelected(true);
+        lifeCheckBoxes[3].setSelected(true);
     }
 
     private StackPane createStackPaneWithCellImage(ImageView imageView, Image image) {

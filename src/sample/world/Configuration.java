@@ -1,14 +1,22 @@
 package sample.world;
 
+import javafx.scene.control.CheckBox;
+
+import java.util.ArrayList;
+
 public class Configuration {
 
     private int width;
     private int height;
     private int startingAliveCells;
     private int turnInterval;
-    private int neighboursToResurrectCell;
-    private int minimalCellsToStayAlive;
-    private int maximumCellsToStayAlive;
+    private ArrayList<Integer> neighboursToBornNewCell;
+    private ArrayList<Integer> neighboursForCellToStayAlive;
+
+    public Configuration() {
+        neighboursForCellToStayAlive = new ArrayList<>();
+        neighboursToBornNewCell = new ArrayList<>();
+    }
 
     int getWidth() {
         return width;
@@ -42,27 +50,31 @@ public class Configuration {
         this.turnInterval = turnInterval;
     }
 
-    public int getNeighboursToResurrectCell() {
-        return neighboursToResurrectCell;
+    public void setAliveRequirements(CheckBox[] deathCheckBoxes) {
+        populateArray(deathCheckBoxes, neighboursForCellToStayAlive);
     }
 
-    public void setNeighboursToResurrectCell(int neighboursToResurrectCell) {
-        this.neighboursToResurrectCell = neighboursToResurrectCell;
+    public void setBornRequirements(CheckBox[] lifeCheckBoxes) {
+        populateArray(lifeCheckBoxes, neighboursToBornNewCell);
     }
 
-    public int getMinimalCellsToStayAlive() {
-        return minimalCellsToStayAlive;
+    public ArrayList<Integer> getNeighboursToBornNewCell() {
+        return neighboursToBornNewCell;
     }
 
-    public void setMinimalCellsToStayAlive(int minimalCellsToStayAlive) {
-        this.minimalCellsToStayAlive = minimalCellsToStayAlive;
+    public ArrayList<Integer> getNeighboursForCellToStayAlive() {
+        return neighboursForCellToStayAlive;
     }
 
-    public int getMaximumCellsToStayAlive() {
-        return maximumCellsToStayAlive;
-    }
-
-    public void setMaximumCellsToStayAlive(int maximumCellsToStayAlive) {
-        this.maximumCellsToStayAlive = maximumCellsToStayAlive;
+    private void populateArray(CheckBox[] checkBoxes, ArrayList<Integer> arrayList) {
+        arrayList.clear();
+        for (CheckBox checkBox : checkBoxes) {
+            if (checkBox.isSelected()) {
+                arrayList.add(Integer.parseInt(checkBox.getText()));
+            }
+        }
+        if (arrayList.isEmpty()) {
+            arrayList.add(0);
+        }
     }
 }

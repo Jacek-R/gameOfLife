@@ -6,6 +6,8 @@ import sample.world.Cell;
 import sample.world.Configuration;
 import sample.world.World;
 
+import java.util.ArrayList;
+
 public class GameTurn implements Runnable {
     private World world;
     private int turn;
@@ -49,13 +51,15 @@ public class GameTurn implements Runnable {
     }
 
     private void checkIfCellWillDie(Cell cell, int neighbours) {
-        if (cell.isAlive() && (neighbours < configuration.getMinimalCellsToStayAlive() || neighbours > configuration.getMaximumCellsToStayAlive())) {
+        ArrayList<Integer> neighboursRequirements = configuration.getNeighboursForCellToStayAlive();
+        if (cell.isAlive() && !neighboursRequirements.contains(neighbours)) {
             cell.setChangeStateInNextTurn(true);
         }
     }
 
     private void checkIfCellWillBorn(Cell cell, int neighbours) {
-        if (!cell.isAlive() && neighbours == configuration.getNeighboursToResurrectCell()) {
+        ArrayList<Integer> neighboursRequirements = configuration.getNeighboursToBornNewCell();
+        if (!cell.isAlive() && neighboursRequirements.contains(neighbours)) {
             cell.setChangeStateInNextTurn(true);
         }
     }
